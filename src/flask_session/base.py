@@ -178,6 +178,7 @@ class ServerSideSessionInterface(FlaskSessionInterface, ABC):
         self.permanent = permanent
         self.sid_length = sid_length
         self.has_same_site_capability = hasattr(self, "get_cookie_samesite")
+        self.has_partitioned_cookie_capability = hasattr(self, "get_cookie_partitioned")
         self.cleanup_n_requests = cleanup_n_requests
 
         # Cleanup settings for non-TTL databases only
@@ -315,6 +316,11 @@ class ServerSideSessionInterface(FlaskSessionInterface, ABC):
         samesite = (
             self.get_cookie_samesite(app) if self.has_same_site_capability else None
         )
+        partitioned = (
+            self.get_cookie_partitioned(app)
+            if self.has_partitioned_cookie_capability
+            else None
+        )
 
         # Set the browser cookie
         response.set_cookie(
@@ -326,6 +332,7 @@ class ServerSideSessionInterface(FlaskSessionInterface, ABC):
             path=path,
             secure=secure,
             samesite=samesite,
+            partitioned=partitioned,
         )
         response.vary.add("Cookie")
 
